@@ -3,28 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve --mode=development",
+    "test": "vue-cli-service serve --mode=test",
+    "build": "vue-cli-service build --mode=production",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "swiper": "^6.4.11",
     "vue": "^2.6.11",
     "vue-router": "^3.5.1",
     "vuex": "^3.6.2"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "babel-eslint": "^10.1.0",
     "element-ui": "^2.15.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint": "^7.20.0",
+    "eslint-plugin-vue": "^7.5.0",
+    "mockjs": "^1.1.0",
     "node-sass": "^5.0.0",
-    "sass-loader": "^11.0.1",
-    "vue-awesome-swiper": "^4.1.1",
+    "sass-loader": "^10.1.1",
+    "vue-awesome-swiper": "^3.1.3",
     "vue-axios": "^3.2.4",
     "vue-cookie": "^1.1.4",
     "vue-lazyload": "^1.3.3",
@@ -41,12 +46,24 @@
     ],
     "parserOptions": {
       "parser": "babel-eslint"
-    },
-    "rules": {}
+    }
   },
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "description": "```\r npm install\r ```",
+  "main": "babel.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fangminghan/MiMall.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fangminghan/MiMall/issues"
+  },
+  "homepage": "https://github.com/fangminghan/MiMall#readme"
 }
