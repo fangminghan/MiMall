@@ -66,12 +66,12 @@
           v-for="(item, index) in adsList"
           v-bind:key="index"
         >
-          <img v-bind:src="item.img" />
+          <img v-lazy="item.img" />
         </a>
       </div>
       <div class="banner">
         <a href="/#/product/30">
-          <img src="/imgs/banner-1.png" />
+          <img v-lazy="'/imgs/banner-1.png'" />
         </a>
       </div>
     </div>
@@ -81,20 +81,20 @@
         <div class="wrapper">
           <div class="banner-left">
             <a href="/#product/35">
-              <img src="/imgs/mix-alpha.jpg" alt="" />
+              <img v-lazy="'/imgs/mix-alpha.jpg'" alt="" />
             </a>
           </div>
           <div class="list-box">
             <div class="list" v-for="(arr, i) in phoneList" :key="i">
               <div class="item" v-for="(item, j) in arr" :key="j">
-                <span>新品</span>
+                <span :class="{'new-pro':j%2==0}">新品</span>
                 <div class="item-img">
-                  <img src="" alt="" />
+                  <img v-lazy="item.mainImage" alt="" />
                 </div>
                 <div class="item-info">
-                  <h3>小米9</h3>
-                  <p>XXXXXXXXXX</p>
-                  <p class="price">2999元</p>
+                  <h3>{{item.name}}</h3>
+                  <p>{{item.subtitle}}</p>
+                  <p class="price" @click="addCart(item.id)">{{item.price}}元</p>
                 </div>
               </div>
             </div>
@@ -103,11 +103,17 @@
       </div>
     </div>
     <service-bar></service-bar>
+    <modal title="提示" sureText="查看购物车" btnType="1" modalType="middle" v-bind:showModal="showModal" v-on:submit="goToCart" v-on:cancel="showModal=false">
+      <template v-slot:body>
+        <p>商品添加成功!</p>
+      </template>
+    </modal>
   </div>
 </template>
 
 <script>
 import ServiceBar from "./../components/ServiceBar";
+import Modal from './../components/Modal';
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import "vue-awesome-swiper/node_modules/swiper/dist/css/swiper.css";
 export default {
@@ -116,6 +122,7 @@ export default {
     swiper,
     swiperSlide,
     ServiceBar,
+    Modal
   },
   data() {
     return {
@@ -207,11 +214,40 @@ export default {
           img: "/imgs/ads/ads-4.jpg",
         },
       ],
-      phoneList: [
-        [1, 1, 1, 1],
-        [1, 1, 1, 1],
-      ],
+      phoneList: [],
+      showModal:false
     };
+  },
+  mounted(){
+    this.init()
+  },
+  methods: {
+    init(){
+      this.axios.get('/products',{
+        params:{
+          categoryId:100012,
+          pageSize:14
+        }
+      }).then((res)=>{
+        res.list = res.list.slice(6,14);
+        this.phoneList = [res.list.slice(0,4),res.list.slice(4,8)];
+      });
+    },
+    addCart(id){
+     
+      this.axios.post('/carts',{
+        productId:id,
+        selected:true
+      }).then((res)=>{
+        this.showModal = true;
+        this.$store.dispatch('saveCartCount',res.cartTotalQuantity);
+      }).catch((res)=>{
+        this.showModal = true;
+      })
+    },
+    goToCart(){
+      this.$router.push('/cart')
+    }
   },
 };
 </script>
@@ -343,9 +379,22 @@ export default {
             background-color: $colorG;
             text-align: center;
             span {
+              display: inline-block;
+              width: 67px;
+              height: 24px;
+              font-size: 14px;
+              line-height: 24px;
+              color: $colorG;
+              &.new-pro {
+                background-color: #7ecf68;
+              }
+              &.kill-pro {
+                background-color: #e82626;
+              }
             }
             .item-img {
               img {
+                width: 100%;
                 height: 195px;
               }
             }

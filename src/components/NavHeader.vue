@@ -11,8 +11,9 @@
         <div class="topbar-user">
           <a href="javascript:;" v-if="username">{{username}}</a>
           <a href="javascript:;" v-if="!username" @click="login">登录</a>
-          <a href="javascript:;" v-if="username">我的订单</a>
-          <a href="javascript:;" class="my-cart" @click="goToCart"><span class="icon-cart"></span>购物车</a
+          <a href="javascript:;" v-if="username" @click="logout">退出</a>
+          <a href="/#/order/list" v-if="username">我的订单</a>
+          <a href="javascript:;" class="my-cart" @click="goToCart"><span class="icon-cart"></span>购物车({{cartCount}})</a
           >
         </div>
       </div>
@@ -30,7 +31,7 @@
                 <li class="product" v-for="(item,index) in phoneList" :key="index">
                   <a v-bind:href="'/#/product'+item.id" target="_blank">
                     <div class="pro-img">
-                      <img :src="item.mainImage">
+                      <img v-lazy="item.mainImage">
                     </div>
                     <div class="pro-name">{{item.name}}</div>
                     <div class="pro-price">{{item.price | currency}}</div>
@@ -50,7 +51,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                      <img src="/imgs/nav-img/nav-3-1.jpg">
+                      <img v-lazy="'/imgs/nav-img/nav-3-1.jpg'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -59,7 +60,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                       <img src="/imgs/nav-img/nav-3-2.jpg">
+                       <img v-lazy="'/imgs/nav-img/nav-3-2.jpg'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -68,7 +69,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                       <img src="/imgs/nav-img/nav-3-3.png">
+                       <img v-lazy="'/imgs/nav-img/nav-3-3.png'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -77,7 +78,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                       <img src="/imgs/nav-img/nav-3-4.jpg">
+                       <img v-lazy="'/imgs/nav-img/nav-3-4.jpg'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -86,7 +87,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                       <img src="/imgs/nav-img/nav-3-5.jpg">
+                       <img v-lazy="'/imgs/nav-img/nav-3-5.jpg'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -95,7 +96,7 @@
                 <li class="product">
                   <a href="/#/" target="_blank">
                     <div class="pro-img">
-                       <img src="/imgs/nav-img/nav-3-6.png">
+                       <img v-lazy="'/imgs/nav-img/nav-3-6.png'">
                     </div>
                     <div class="pro-name">小米电视</div>
                     <div class="pro-price">2999</div>
@@ -117,13 +118,22 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
   name: "nav-header",
   data(){
     return{
-      username:'',
       phoneList:[]
     }
+  },
+  computed:{
+    // username(){
+    //   return this.$store.state.username;
+    // },
+    // cartCount(){
+    //   return this.$store.state.cartCount;
+    // },
+    ...mapState(['username','cartCount']),
   },
   filters:{
     currency(val){
@@ -133,6 +143,10 @@ export default {
   },
   mounted(){
     this.getProductList();
+    let params = this.$route.params;
+    if(params && params.from == 'login'){
+      this.getCartCount();
+      }    
   },
   methods:{
     login(){
@@ -146,6 +160,20 @@ export default {
         }
       }).then((res)=>{
           this.phoneList = res.list;
+      });
+    },
+    getCartCount(){
+      this.axios.get('/carts/products/sum').then((res=0)=>{
+        //to-do 保存到vuex里面
+        this.$store.dispatch('saveCartCount',res)
+      });
+    },
+    logout(){
+      this.axios.post('/user/logout').then(()=>{
+        this.$message.success('退出成功');
+        this.$cookie.set('userId','',{expires:'-1'});
+        this.$store.dispatch('saveUserName','');
+        this.$store.dispatch('saveCartCount','0');
       });
     },
     goToCart(){
@@ -178,6 +206,7 @@ export default {
         background-color: #ff6600;
         text-align: center;
         color: #ffffff;
+        margin-right: 0;
         .icon-cart {
           @include bgImg(16px,12px,'/imgs/icon-cart-checked.png');
           margin-right: 4px;
@@ -190,30 +219,7 @@ export default {
       position: relative;
       height: 122px;
       @include flex();
-      .header-logo {
-        display: inline-block;
-        width: 55px;
-        height: 55px;
-        background-color: #ff6600;
-        a {
-          display: inline-block;
-          width: 110px;
-          height: 55px;
-          &:before {
-            content: " ";
-            @include bgImg(55px,55px,'/imgs/mi-logo.png',55px);
-            transition: margin, 0.2s;
-          }
-          &:after {
-            content: " ";
-            @include bgImg(55px,55px,'/imgs/mi-home.png',55px);
-          }
-          &:hover:before {
-            margin-left: -55px;
-            transition: margin, 0.2s;
-          }
-        }
-      }
+      
       .header-menu{
         display: inline-block;
         width: 643px;
